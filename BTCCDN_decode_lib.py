@@ -161,7 +161,3 @@ class BTCCDNDownload(object):
 				fp.write(v)
 
 BTCCDNDownload('1AQmkM5K5RJ9vdGFtwXYQqdazCbB2pofbH').save()
-
-
-# Download(dest, txid)
-# Download(dest, src=[])
