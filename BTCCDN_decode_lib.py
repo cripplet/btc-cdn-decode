@@ -34,14 +34,14 @@ class AddrTracker(object):
 		for pl in f:
 			assert(c == -1 or c == pl['payload'][0])
 			c = pl['payload'][0] + 1
-			if pl['command'] == COMMAND['FILESTART']:
+			if pl['command'] & COMMAND['FILESTART'] == COMMAND['FILESTART']:
 				txid = str(pl['txid'])
 				files[txid] = {
 					'global_pos' : pl['key'],
 					'file' : bytearray(),
 				}
 			files[txid]['file'] += pl['payload'][1]
-			if pl['command'] == COMMAND['FILETERM']:
+			if pl['command'] & COMMAND['FILETERM'] == COMMAND['FILETERM']:
 				# end of file global pos
 				files[txid]['global_pos'] = pl['key']
 		return files
@@ -63,18 +63,14 @@ class BTCCDNDownload(object):
 	def get_name(txid):
 		return 'files/%s.out' % txid
 
-	def __init__(self, dest, txid):
-		self._t = txid
-		self._d = dest
-		self._s = []
-		self.sorted = None
-
-	def __init__(self, dest, src=None):
-		self._t = ''
+	def __init__(self, dest, txid=None, src=None):
+		if txid is None:
+			txid = []
 		if src is None:
 			src = []
 		self._d = dest
 		self._s = src
+		self._t = txid
 		self.sorted = None
 
 	@property
@@ -145,11 +141,11 @@ class BTCCDNDownload(object):
 			for k, v in addr.files.items():
 				files[k] = v
 		sorted_files = []
-		if self.txid != '':
-			if self.txid in files:
-				sorted_files.append(( self.txid, files[self.txid]))
+		if self.txid != []:
+			for x in set(self.txid).intersection(files):
+				sorted_files.append(( x, files[x]))
 		else:
-			sorted_files = [ (k, v['file']) for k, v in sorted(files.items(), lambda k, v : v['global_pos']) ]
+			sorted_files = [ (x, y['file']) for x, y in sorted(files.items(), lambda (k1, v1), (k2, v2): cmp(v1['global_pos'], v2['global_pos'])) ]
 		self.sorted = sorted_files
 		return sorted_files
 
