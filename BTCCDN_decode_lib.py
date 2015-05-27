@@ -159,5 +159,3 @@ class BTCCDNDownload(object):
 		for (k, v) in self.sorted:
 			with open(BTCCDNDownload.get_name(k), 'wb') as fp:
 				fp.write(v)
-
-BTCCDNDownload('1AQmkM5K5RJ9vdGFtwXYQqdazCbB2pofbH').save()
